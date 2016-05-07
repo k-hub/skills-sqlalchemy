@@ -1,7 +1,7 @@
 """Models and database functions for Ratings project."""
 
 from flask_sqlalchemy import SQLAlchemy
-from query import *
+
 
 # Here's where we create the idea of our database. We're getting this through
 # the Flask-SQLAlchemy library. On db, we can find the `session`
@@ -35,7 +35,7 @@ class Brand(db.Model):
     __tablename__ = "brands"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(50), nullable=False)
+    name = db.Column(db.String(50), unique=True, nullable=False)
     founded = db.Column(db.Integer)
     headquarters = db.Column(db.String)
     discontinued = db.Column(db.Integer)
