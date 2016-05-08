@@ -20,7 +20,7 @@ class Model(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     year = db.Column(db.Integer,  nullable=False)
-    brand_name = db.Column(db.String(50), db.ForeignKey('brands.name'))
+    brand_name = db.Column(db.String(50), db.ForeignKey('brands.name'), nullable=False)
     name = db.Column(db.String(50), nullable=False)
 
     brand = db.relationship('Brand')

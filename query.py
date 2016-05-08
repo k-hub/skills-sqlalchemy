@@ -47,14 +47,21 @@ not_Chev = db.session.query(Model).filter(Model.brand_name != 'Chevrolet').all()
 
 def get_model_info(year):
     '''Takes in a year, and prints out each model, brand_name, and brand
-    headquarters for that year using only ONE database query.'''
+    headquarters for that year using only ONE database query.
+
+        >>> get_model_info(1958)
+        Model: Corvette, Brand name: Chevrolet, Headquarters: Detroit, Michigan
+        Model: 600, Brand name: BMW, Headquarters: Munich, Bavaria, Germany
+        Model: Thunderbird, Brand name: Ford, Headquarters: Dearborn, MI
+
+    '''
 
     all_from_yr = Model.query.filter(Model.year==year).all() # List of objects.
 
     for i in range(len(all_from_yr)):
         model = all_from_yr[i].name
         brand = all_from_yr[i].brand_name
-        hq = all_from_yr[i].brand.headquarters  # If attribute is None, how do you account for it?
+        hq = all_from_yr[i].brand.headquarters  # If attribute is None, how do I account for it?
 
         print "Model: {}, Brand name: {}, Headquarters: {}".format(model, brand, hq)
 
@@ -63,33 +70,34 @@ def get_brands_summary():
     '''Prints out each brand name, and each model name for that brand
      using only ONE database query.'''
 
-    brands_models = db.session.query(Brand.name, Model.name).all() # list of brand, model tuples
-    # Need to fix query. Want to print each brand and all of that brand's models.
 
-    # Can I group by model name?
+    # brands_models = db.session.query(Brand.name).order_by(Brand.name).all() # List brand tuples in alpha order.
 
-    # Make a dictionary. If brand name not a key in dictionary, add it and add the brand's model as the values.
+    # models = db.session.query(Model.name).distinct(Model.name).all() # List of model tuples in alpha order.
+
+
+    brands = db.session.query(Brand).order_by(Brand.name).all() # List of brand objects in alpha order.
+
     b_m = {}
 
-    for i in range(len(brands_models)):
-        brand = str(brands_models[i][0])  # Gets the brand name from the tuple.
-        model = str(brands_models[i][1])  # Gets the model name from the tuple.
-        unique_models = set()
-        b_m.setdefault(brand, unique_models).add(model)
-        # I want to change unique_models to a list so I can sort.
-
-    # print b_m
-
-    # for brand, models in b_m.items():
-    #     models.sort() # List of sorted model names for a particular brand.
-    #     models_joined = ", ".join(models)
-
-    #     print "BRAND: {}, MODELS: {}".format(brand, models_joined)
+    for obj in brands:
+        b_objs = obj.models  # List of objects. Same brand objects and their respective models.
+        # print "\nTEST:\n", b_objs
+        for i in range(len(obj.models)):
+            # print "\nBRAND:\n", obj.models[i].brand_name
+            brand = obj.models[i].brand_name
+            # print "\nMOD:\n", obj.models[i].name
+            model = obj.models[i].name
+            b_m.setdefault(brand, set()).add(model)
+    # print "DICTIONARY:\n", b_m
 
     for brand, models in b_m.items():
         models_joined = ", ".join(models)
         print "BRAND: {}\nMODELS: {}\n".format(brand, models_joined)
-    
+
+
+
+
 
 # -------------------------------------------------------------------
 # Part 2.5: Discussion Questions (Include your answers as comments.)
@@ -104,8 +112,7 @@ def get_brands_summary():
 # 2. In your own words, what is an association table, and what *type* of relationship
 # does an association table manage?
     
-    # An association table is a table that connects other tables via their primary key (which will be the foreign key in the association table) 
-    # and is used to manage a many to many relationship. 
+    # An association table is a table that connects other tables via their primary key (which will be the foreign key in the association table) and is used to manage a many to many relationship. 
 
 # -------------------------------------------------------------------
 # Part 3
@@ -113,17 +120,46 @@ def get_brands_summary():
 def search_brands_by_name(mystr):
     '''Find brand names that contain the input string.
 
-    Returns a list of brand objects that contain the input string'''
+    Returns a list of brand objects that contain the input string
+
+        >>> search_brands_by_name('Tes')
+        [<Brand id=15 name=Tesla>]
+
+
+        >>> search_brands_by_name('Ford')
+        [<Brand id=1 name=Ford>]
+    '''
 
     contains_mystr = Brand.query.filter(Brand.name.like('%' + mystr + '%')).all()
     return contains_mystr
+
 
 def get_models_between(start_year, end_year):
     '''Find models between start_year and end_year.
 
     Returns a list of model objects that contain the models that fall
-    between start_year and end_year.'''
+    between start_year and end_year.
+
+        >>> get_models_between(1960, 1963)
+        [<Model id=18 brand_name=Chevrolet model_name=Corvair>, <Model id=19 brand_name=Chevrolet model_name=Corvette>, <Model id=20 brand_name=Fillmore model_name=Fillmore>, <Model id=21 brand_name=Fairthorpe model_name=Rockette>, <Model id=22 brand_name=Austin model_name=Mini Cooper>, <Model id=23 brand_name=Studebaker model_name=Avanti>, <Model id=24 brand_name=Pontiac model_name=Tempest>, <Model id=25 brand_name=Chevrolet model_name=Corvette>, <Model id=26 brand_name=Pontiac model_name=Grand Prix>, <Model id=27 brand_name=Chevrolet model_name=Corvette>, <Model id=28 brand_name=Studebaker model_name=Avanti>, <Model id=29 brand_name=Buick model_name=Special>]
+
+        >>> get_models_between(1909, 1950)
+        [<Model id=1 brand_name=Ford model_name=Model T>, <Model id=2 brand_name=Chrysler model_name=Imperial>]
+    '''
 
     models = db.session.query(Model).filter(Model.year >= start_year, Model.year < end_year).all()
 
     return models
+
+
+
+
+
+
+##########################################################################
+
+if __name__ == "__main__":
+    from doctest import testmod
+    if testmod().failed == 0:
+        print "*** ALL TESTS PASSED ***"
+        print
