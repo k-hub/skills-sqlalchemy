@@ -46,24 +46,33 @@ not_Chev = db.session.query(Model).filter(Model.brand_name != 'Chevrolet').all()
 # Fill in the following functions. (See directions for more info.)
 
 def get_model_info(year):
-    '''Takes in a year, and prints out each model, brand_name, and brand
-    headquarters for that year using only ONE database query.
+    # '''Takes in a year, and prints out each model, brand_name, and brand
+    # headquarters for that year using only ONE database query.
 
-        >>> get_model_info(1958)
-        Model: Corvette, Brand name: Chevrolet, Headquarters: Detroit, Michigan
-        Model: 600, Brand name: BMW, Headquarters: Munich, Bavaria, Germany
-        Model: Thunderbird, Brand name: Ford, Headquarters: Dearborn, MI
+    #     >>> get_model_info(1958)
+    #     Model: Corvette, Brand name: Chevrolet, Headquarters: Detroit, Michigan
+    #     Model: 600, Brand name: BMW, Headquarters: Munich, Bavaria, Germany
+    #     Model: Thunderbird, Brand name: Ford, Headquarters: Dearborn, MI
 
-    '''
+    # '''
 
     all_from_yr = Model.query.filter(Model.year==year).all() # List of objects.
 
-    for i in range(len(all_from_yr)):
-        model = all_from_yr[i].name
-        brand = all_from_yr[i].brand_name
-        hq = all_from_yr[i].brand.headquarters  # If attribute is None, how do I account for it?
+    # for i in range(len(all_from_yr)):
+    #     model = all_from_yr[i].name
+    #     brand = all_from_yr[i].brand_name
+    #     hq = all_from_yr[i].brand.headquarters  # If attribute is None, how do I account for it?
 
-        print "Model: {}, Brand name: {}, Headquarters: {}".format(model, brand, hq)
+    for model in all_from_yr:
+        name = model.name
+        brand = model.brand_name
+
+        if not brand:
+            hq = None
+        else:
+            hq = model.brand.headquarters
+
+        print "Model: {}, Brand name: {}, Headquarters: {}".format(name, brand, hq)
 
 
 def get_brands_summary():
@@ -106,7 +115,7 @@ def get_brands_summary():
     # <flask_sqlalchemy.BaseQuery object at 0x110c61b90>
     # [<Brand id=1 name=Ford>]
 
-    # The datatype is a list.
+    # The datatype is an object.
 
 
 # 2. In your own words, what is an association table, and what *type* of relationship
